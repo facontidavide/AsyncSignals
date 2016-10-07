@@ -59,9 +59,15 @@ protected:
 class Dispatcher : boost::noncopyable
 {
 public:
-  Dispatcher();
+  Dispatcher::Dispatcher():  strand_(io_),  work_(io_),
+  thread_( boost::bind(&boost::asio::io_service::run, &io_) )
+  {  }
 
-  ~Dispatcher();
+  ~Dispatcher() 
+  {
+    io_.stop();
+    thread_.join();
+  }
 
 
   // FACTORY. Create an emitter object
@@ -96,6 +102,14 @@ private:
   boost::asio::io_service::work work_;
   boost::thread thread_;
 };
+
+inline Dispatcher::Dispatcher():
+  strand_(io_),
+  work_(io_),
+  thread_( boost::bind(&boost::asio::io_service::run, &io_) )
+{
+
+}
 
 
 
